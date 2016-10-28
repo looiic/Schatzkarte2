@@ -1,0 +1,19 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.loicjermann.schatzkarte2.MainActivity">
+
+    <item
+        android:id="@+id/set_point"
+        android:orderInCategory="1"
+        android:title="Set Point"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/log"
+        android:orderInCategory="2"
+        android:title="Log"
+        app:showAsAction="never" />
+
+
+</menu>
