@@ -3,9 +3,11 @@ package com.example.loicjermann.schatzkarte2;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -15,8 +17,20 @@ import android.view.MenuItem;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.osmdroid.api.IMapController;
+import org.osmdroid.tileprovider.MapTileProviderArray;
+import org.osmdroid.tileprovider.MapTileProviderBase;
+import org.osmdroid.tileprovider.modules.IArchiveFile;
+import org.osmdroid.tileprovider.modules.MBTilesFileArchive;
+import org.osmdroid.tileprovider.modules.MapTileFileArchiveProvider;
+import org.osmdroid.tileprovider.modules.MapTileModuleProviderBase;
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
+import org.osmdroid.tileprovider.tilesource.XYTileSource;
+import org.osmdroid.tileprovider.util.SimpleRegisterReceiver;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.TilesOverlay;
+
+import java.io.File;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -36,10 +50,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         map = (MapView) findViewById(R.id.mapview);
 
-        //map.setTileSource(TileSourceFactory.DEFAULT_TILE_SOURCE);
+        map.setTileSource(TileSourceFactory.DEFAULT_TILE_SOURCE);
 
-        //map.setMultiTouchControls(true);
-        //map.setBuiltInZoomControls(true);
+        map.setMultiTouchControls(true);
+        map.setBuiltInZoomControls(true);
 
         IMapController controller = map.getController();
         controller.setZoom(18);
@@ -60,22 +74,22 @@ public class MainActivity extends AppCompatActivity {
             //ich glaub do müsse mr nüt mache will mr em app jo eh alli berechtigunge gäbe
             //und mr werde s app jo nie an anderi witergä wo dumm si XD
             // das dings würd priefe eb s app die nötige berechtigunge het und das dings brucht me
-        //    return;
+            return;
         }
         Location location = locationManager.getLastKnownLocation(provider);
 
-        //XYTileSource treasureMapTileSource = new XYTileSource("mbtiles", 1, 20, 256, ".png",new String[] {"http://example.org/"});
+        XYTileSource treasureMapTileSource = new XYTileSource("mbtiles", 1, 20, 256, ".png", new String[]{"http://example.org/"});
 
-        //File file = new File(Environment.getExternalStorageDirectory() /* entspricht /sdcard/ */, "hsr.mbtiles");
+        File file = new File(Environment.getExternalStorageDirectory(), "hsr.mbtiles");
 
-        //MapTileModuleProviderBase treasureMapModuleProvider = new MapTileFileArchiveProvider(new SimpleRegisterReceiver(this),
-        //        treasureMapTileSource, new IArchiveFile[] { MBTilesFileArchive.getDatabaseFileArchive(file) });
+        MapTileModuleProviderBase treasureMapModuleProvider = new MapTileFileArchiveProvider(new SimpleRegisterReceiver(this),
+                treasureMapTileSource, new IArchiveFile[]{MBTilesFileArchive.getDatabaseFileArchive(file)});
 
-        //MapTileProviderBase treasureMapProvider = new MapTileProviderArray(treasureMapTileSource, null,
-        //        new MapTileModuleProviderBase[] { treasureMapModuleProvider });
+        MapTileProviderBase treasureMapProvider = new MapTileProviderArray(treasureMapTileSource, null,
+                new MapTileModuleProviderBase[]{treasureMapModuleProvider});
 
-        //TilesOverlay treasureMapTilesOverlay = new TilesOverlay(treasureMapProvider, getBaseContext());
-        //treasureMapTilesOverlay.setLoadingBackgroundColor(Color.TRANSPARENT);
+        TilesOverlay treasureMapTilesOverlay = new TilesOverlay(treasureMapProvider, getBaseContext());
+        treasureMapTilesOverlay.setLoadingBackgroundColor(Color.TRANSPARENT);
 
 
     }
@@ -96,11 +110,18 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.log) {
-
-            return true;
-        }
-        if (id == R.id.set_point) {
-
+            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                //
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                //
+            }
+            Location location = locationManager.getLastKnownLocation(provider);
+            log(location);
             return true;
         }
 
